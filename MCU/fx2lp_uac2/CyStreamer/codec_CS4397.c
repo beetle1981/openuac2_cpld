@@ -54,20 +54,20 @@ uint8_t CS4397_Init()
 	return TRUE;
 }
 
-uint8_t CS4397_SetVolume(uint8_t vol)
-{
-    TxBuf[0] = CS4397_LCH_ATT_ADDR;
+// uint8_t CS4397_SetVolume(uint8_t vol)
+// {
+//     TxBuf[0] = CS4397_LCH_ATT_ADDR;
 
-    vol = (vol > 0) ? (vol + 155) : 0;
-    Reg.lch_att = Reg.rch_att = vol;
+//     vol = (vol > 0) ? (vol + 155) : 0;
+//     Reg.lch_att = Reg.rch_att = vol;
 
-    memcpy(TxBuf + 1, &Reg.lch_att, 2);
+//     memcpy(TxBuf + 1, &Reg.lch_att, 2);
 
-    EZUSB_WriteI2C(CS4397_I2C_ADDR, 3, TxBuf);
-    I2C_POLL_FOR_COMPLETE();
+//     EZUSB_WriteI2C(CS4397_I2C_ADDR, 3, TxBuf);
+//     I2C_POLL_FOR_COMPLETE();
 
-	return TRUE;
-}
+// 	return TRUE;
+// }
 
 uint8_t CS4397_SetMute(uint8_t mute)
 {
@@ -113,6 +113,33 @@ uint8_t CS4397_SetFormat(uint8_t format)
     I2C_POLL_FOR_COMPLETE();
 
 	return TRUE;
+}
+
+void SPIByteWrite(unsigned char b)
+// caller manages SPI_CS signal
+{
+    SPI_CLK = 0;
+    if(b & 0x80) MOSI = 1;else MOSI= 0;
+    SPI_CLK = 1; SPI_CLK = 0;
+    if(b & 0x40) MOSI = 1;else MOSI= 0;
+    SPI_CLK = 1; SPI_CLK = 0;
+    if(b & 0x20) MOSI = 1;else MOSI= 0;
+    SPI_CLK = 1; SPI_CLK = 0;
+    if(b & 0x10) MOSI = 1;else MOSI= 0;
+    SPI_CLK = 1; SPI_CLK = 0;
+    if(b & 0x08) MOSI = 1;else MOSI= 0;
+    SPI_CLK = 1; SPI_CLK = 0;
+    if(b & 0x04) MOSI = 1;else MOSI= 0;
+    SPI_CLK = 1; SPI_CLK = 0;
+    if(b & 0x02) MOSI = 1;else MOSI= 0;
+    SPI_CLK = 1; SPI_CLK = 0;
+    if(b & 0x01) MOSI = 1;else MOSI= 0;
+    SPI_CLK = 1; SPI_CLK = 0;
+}
+
+uint8_t CS4397_SetMCLK(uint8_t mclk)
+{
+
 }
 
 
