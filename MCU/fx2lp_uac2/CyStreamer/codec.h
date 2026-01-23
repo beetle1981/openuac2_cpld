@@ -11,6 +11,22 @@ typedef enum
 	CODEC_FORMAT_DSD
 } CODEC_FormatTypeDef;
 
+typedef enum 
+{
+	FS32K,
+	FS44K1,
+	FS48K,
+	FS32KXN,
+	FS44K1XN,
+	FS48KXN
+} CODEC_FrequencyTypeDef;
+
+typedef enum 
+{
+	ON,
+	OFF
+} CODEC_PowerTypeDef;
+
 typedef struct
 {
 	uint8_t (*Init)(void);

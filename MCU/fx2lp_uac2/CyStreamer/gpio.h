@@ -5,11 +5,11 @@
 
 sbit CPLD_RST_N_PIN = IOA ^ 0;
 sbit FB_REQ_PIN     = IOA ^ 7;
-// sbit CODEC_RST_N_PIN = IOA ^ 6;
+sbit CODEC_MCLK_CS = IOA ^ 6; //PLL1708 MS PIN for I2C control.
 
 //Define SPI port
-sbit MCLK_SPI_CS = IOA ^ 0;
-sbit MCLK_SPI_SCK = IOA ^ 1;
-sbit MCLK_SPI_SI = IOA ^ 2;
+// sbit MCLK_SPI_CS = IOA ^ 0;
+// sbit MCLK_SPI_SCK = IOA ^ 1;
+// sbit MCLK_SPI_SI = IOA ^ 2;
 
 #endif // _GPIO_H_

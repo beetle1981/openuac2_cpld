@@ -8,7 +8,8 @@
 #define CS4397B_I2C_ADDR	0x11	//C, LFE -0010001
 #define CS4397C_I2C_ADDR	0x12	//Ls, Rs -0010010
 #define PCF8574_I2C_ADDR	0x21	//other  -0100001
-#define PLL1708_I2C_ADDR	0x
+#define PLL1708_I2C_ADDR_MOD	0x38	//Mode Address
+#define PLL1708_I2C_ADDR_SCKO1	0x36	//SCKO1 Address
 
 #define CS4397_CONTROL1_ADDR       0X01	//01H
 
@@ -44,22 +45,43 @@
 #define CS4397_DSD_64		(20U << 1) //DSD64
 #define CS4397_DSD_128		(21U << 1) //DSD128
 
-// Control 2
+// ------------------Control Board
 #define PCF8574_MCK_SEL		(1U << 7)	//H: internal; L: external
 #define PCF8574_MCK_Freq	(1U << 6)   //H: 384Fs; L: 192Fs
-#define PCF8574_reset 		(1U << 5)	//H: normal; L: reset
+#define PCF8574_RESET 		(1U << 5)	//H: normal; L: reset
 // #define PCF8574_DFS1		(1U << 4)
 // #define PCF8574_DFS0		(1U << 3)
 #define PCF8574_DSD_GAIN	(1U << 2)	//H: DSD; L: PCM
 #define PCF8574_DSD_ACT		(1U << 1)	//H: DSD L: PCM
-#define PCF8574_HMUTE		(1U << 0)	//H: ON; L: OFF
+#define PCF8574_AMUTE		(1U << 0)	//H: ON; L: OFF
 
+//------------------Control MCLK
+#define EXT_MCLK_EN_SCKO1	(1U << 7)  //SCKO1 Enable(default)
+#define EXT_MCLK_EN_SCKO3	(1U << 6)  //SCKO3 Enable(default)
+#define EXT_MCLK_EN_SCKO2	(1U << 5)  //SCKO2 Enable(default)
+#define EXT_MCLK_EN_MCKO0	(1U << 4)  //SCKO0 Enable(default)
+// //Sampling Rate Select
+// #define EXT_MCLK_SR_DAUL	(1U << 2)  //Sampling rate double
+// #define EXT_MCLK_SR_HALF	(2U << 2)  //Sampling rate half
+// #define EXT_MCLK_SR_STD		(0U << 2)  //Sampling rate standard
+// //Frequency Select
+// #define EXT_MCLK_FS_48K		(0U)	//Fs = 48kHz(default)
+// #define EXT_MCLK_FS_41K		(1U)	//Fs = 44.1kHz(default)
+// #define EXT_MCLK_FS_32K		(2U)	//Fs = 32kHz(default)
+//External MCLK select
+#define EXT_MCLK_32K	((1U << 2) | 2U)	//Fs = 32kHz, SCKO2 = 16.3840MHz, SCKO3 = 24.576MHz
+#define EXT_MCLK_44K1	((1U << 2) | 1U)	//Fs = 44.1kHz, SCKO2 = 22.5792MHz, SCKO3 = 33.8688MHz
+#define EXT_MCLK_48K	((1U << 2) | 0U)	//Fs = 48kHz, SCKO2 = 24.576MHz, SCKO3 = 36.864MHz
+#define EXT_MCLK_DSD	((0U << 2) | 1U)	//DSD64 or DSD128, SCKO2 = 11.2896MHz, SCKO3 = 16.9344MHz
 
 typedef struct 
 {
-	uint8_t control1;
-	uint8_t control2;
+	uint8_t control1;		//DAC Chip control
+	uint8_t control_board;	//Board control
+	uint8_t control_mclk;	//external MCLK control
 } CS4397_RegisterTypeDef;
+
+
 
 uint8_t CS4397_Init();
 // uint8_t CS4397_SetVolume(uint8_t vol);

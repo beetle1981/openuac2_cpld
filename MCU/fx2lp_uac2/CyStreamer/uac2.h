@@ -59,7 +59,8 @@
 #define EP_GENERAL 0x01
 
 // --------------------- User Config ---------------------
-#define CS_MIN_FREQ 44100UL
+// #define CS_MIN_FREQ 44100UL
+#define CS_MIN_FREQ 32000UL
 #define CS_MAX_FREQ 1536000UL
 #define CS_FREQ_STEP 1UL
 

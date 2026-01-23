@@ -62,11 +62,13 @@
 #define FEEDBACK_MAX_COUNT 30000L // 30MHz(ifclk) / 1kHz(sof/interval)
 #define FEEDBACK_LIMIT 16L
 #define FEEDBACK_VAL_48K  393216L
-#define FEEDBACK_VAL_44K1 361267L 
+#define FEEDBACK_VAL_44K1 361267L
+#define FEEDBACK_VAL_32K  262144L 
 #define FEEDBACK_INTERVAL 8U // Interval for feedback request in number of SOFs
 
 #define FOSC_48K  98304000L
 #define FOSC_44K1 90316800L
+#define FOSC_32K  65536000L
 
 #define ARM_EP2() \
 	EP2FIFOCFG = 0x01; \
@@ -179,7 +181,7 @@ static void GPIO_Init(void)
 	OEA |= bmBIT7;
 
 	// PA6 output
-	CODEC_RST_N_PIN = 0;
+	CODEC_MCLK_CS = 0;
 	OEA |= bmBIT6;
 
 	// PA1 INT1 input
@@ -256,6 +258,7 @@ static BOOL SetFreqWordSize(void)
 	BYTE sckDiv = 0;
 	BOOL isMultipleOf48K = FALSE;
 	BOOL isMultipleOf44K1 = FALSE;
+	BOOL isMultipleOf32K = FALSE;
 
 	// Close EPs
 	EP2CFG &= ~(bmBIT7);
@@ -276,6 +279,7 @@ static BOOL SetFreqWordSize(void)
 
 	isMultipleOf48K = (Freq % 48000 == 0); 
 	isMultipleOf44K1 = (Freq % 44100 == 0);
+	isMultipleOf32K = (Freq % 32000 == 0);
 	if (isMultipleOf48K) {
 		FreqMultiplier = Freq / 48000;
 		FeedbackValBase = FEEDBACK_VAL_48K * FreqMultiplier;
@@ -285,7 +289,14 @@ static BOOL SetFreqWordSize(void)
 		FreqMultiplier = Freq / 44100;
 		FeedbackValBase = FEEDBACK_VAL_44K1 * FreqMultiplier;
 		sckDiv = LOG2(FOSC_44K1 / (Freq * WordSize * 16));
-		CPLD_ConfigI2S(TO_CPLD_I2S_WORDSIZE(WordSize), isMultipleOf48K, sckDiv, MckDivTable[sckDiv]);
+		// CPLD_ConfigI2S(TO_CPLD_I2S_WORDSIZE(WordSize), isMultipleOf48K, sckDiv, MckDivTable[sckDiv]);
+		CPLD_ConfigI2S(TO_CPLD_I2S_WORDSIZE(WordSize), isMultipleOf44K1, sckDiv, MckDivTable[sckDiv]);
+	} else if (isMultipleOf32K){
+		FreqMultiplier = Freq / 32000;
+		FeedbackValBase = FEEDBACK_VAL_32K * FreqMultiplier;
+		sckDiv = LOG2(FOSC_32K / (Freq * WordSize * 16));
+		// CPLD_ConfigI2S(TO_CPLD_I2S_WORDSIZE(WordSize), isMultipleOf48K, sckDiv, MckDivTable[sckDiv]);
+		CPLD_ConfigI2S(TO_CPLD_I2S_WORDSIZE(WordSize), isMultipleOf32K, sckDiv, MckDivTable[sckDiv]);
 	} else {
 		return FALSE;
 	} 
