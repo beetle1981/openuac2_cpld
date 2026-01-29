@@ -13,12 +13,10 @@ typedef enum
 
 typedef enum 
 {
-	FS32K,
-	FS44K1,
-	FS48K,
-	FS32KXN,
-	FS44K1XN,
-	FS48KXN
+	FS_DSD,
+	FS_32K_XN,
+	FS_44K1_XN,
+	FS_48K_XN
 } CODEC_FrequencyTypeDef;
 
 typedef enum 
@@ -26,6 +24,13 @@ typedef enum
 	ON,
 	OFF
 } CODEC_PowerTypeDef;
+
+typedef enum 
+{
+	DAC,
+	BOARD,
+	MCLK
+} CODEC_RegisterTypeDef;
 
 typedef struct
 {

@@ -285,19 +285,27 @@ static BOOL SetFreqWordSize(void)
 		FeedbackValBase = FEEDBACK_VAL_48K * FreqMultiplier;
 		sckDiv = LOG2(FOSC_48K / (Freq * WordSize * 16));
 		CPLD_ConfigI2S(TO_CPLD_I2S_WORDSIZE(WordSize), isMultipleOf48K, sckDiv, MckDivTable[sckDiv]);
+		codec.SetFreq(FS_48K_XN);
+		codec.SetFormat(Freq,AlternateSetting);
 	} else if (isMultipleOf44K1) {
 		FreqMultiplier = Freq / 44100;
 		FeedbackValBase = FEEDBACK_VAL_44K1 * FreqMultiplier;
 		sckDiv = LOG2(FOSC_44K1 / (Freq * WordSize * 16));
 		// CPLD_ConfigI2S(TO_CPLD_I2S_WORDSIZE(WordSize), isMultipleOf48K, sckDiv, MckDivTable[sckDiv]);
 		CPLD_ConfigI2S(TO_CPLD_I2S_WORDSIZE(WordSize), isMultipleOf44K1, sckDiv, MckDivTable[sckDiv]);
+		codec.SetFreq(FS_44K1_XN);
+		codec.SetFormat(Freq,AlternateSetting);
 	} else if (isMultipleOf32K){
 		FreqMultiplier = Freq / 32000;
 		FeedbackValBase = FEEDBACK_VAL_32K * FreqMultiplier;
 		sckDiv = LOG2(FOSC_32K / (Freq * WordSize * 16));
 		// CPLD_ConfigI2S(TO_CPLD_I2S_WORDSIZE(WordSize), isMultipleOf48K, sckDiv, MckDivTable[sckDiv]);
 		CPLD_ConfigI2S(TO_CPLD_I2S_WORDSIZE(WordSize), isMultipleOf32K, sckDiv, MckDivTable[sckDiv]);
+		codec.SetFreq(FS_32K_XN);
+		codec.SetFormat(Freq,AlternateSetting);
 	} else {
+		codec.SetFreq(FS_DSD);
+		codec.SetFormat(Freq,AlternateSetting);
 		return FALSE;
 	} 
 	PacketSize = (WordSize == 4) ? (Freq / 1000) : (Freq / 2000);
@@ -322,13 +330,13 @@ static void SetStreamType(void)
 	switch (StreamType) {
 	case STREAM_TYPE_PCM:
 		CPLD_ConfigDSD(CPLD_DSD_DISABLE);
-		if (codec.SetFormat)
-			codec.SetFormat(CODEC_FORMAT_PCM);
+		// if (codec.SetFormat)
+		// 	codec.SetFormat(CODEC_FORMAT_PCM);
 		break;
 	case STREAM_TYPE_DSD:
 		CPLD_ConfigDSD(CPLD_DSD_MODE_NATIVE);
-		if (codec.SetFormat)
-			codec.SetFormat(CODEC_FORMAT_DSD);
+		// if (codec.SetFormat)
+		// 	codec.SetFormat(CODEC_FORMAT_DSD);
 		break;
 	}
 }
@@ -575,23 +583,20 @@ BOOL DR_GetConfiguration(void) // Called when a Get Configuration command is rec
 
 BOOL DR_SetInterface(void) // Called when a Set Interface command is received
 {
-	AlternateSetting = SETUPDAT[2];
+	AlternateSetting = SETUPDAT[2]; //1 or 4 = 32bit, 2 = 24bit, 3 = 16bit
 
 	switch (AlternateSetting) {
-	case 1: case 2: case 4:
-		WordSize = 4; 
+	case 1: case 2:
+		WordSize = 4;
+		StreamType = STREAM_TYPE_PCM; 
 		break;
 	case 3: 
 		WordSize = 2; 
-		break;
-	}
-
-	switch (AlternateSetting) {
-	case 1: case 2: case 3:
 		StreamType = STREAM_TYPE_PCM;
 		break;
-	case 4:
-		StreamType = STREAM_TYPE_DSD;
+	 case 4:
+	 	WordSize = 4;
+		StreamType = STREAM_TYPE_DSD; 
 		break;
 	}
 

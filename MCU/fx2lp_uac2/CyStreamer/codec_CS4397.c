@@ -8,7 +8,7 @@
 
 #define I2C_POLL_FOR_COMPLETE() while (I2CPckt.status != I2C_IDLE)
 
-static CS4397_RegisterTypeDef xdata Reg;
+static CS4397_RegisterTypeDef xdata reg;
 static uint8_t xdata TxBuf[sizeof(CS4397_RegisterTypeDef) + 1];
 
 CODEC_TypeDef code codec =
@@ -27,30 +27,13 @@ CODEC_TypeDef code codec =
 uint8_t CS4397_Init()
 {
     // CS4397_RegisterTypeDef xdata *reg = &TxBuf[1];
-    // TxBuf[0] = CS4397_CONTROL1_ADDR;
+    // TxBuf[0] = CS4397_dac_ADDR;
     CS4397_AMute(ON);
-    CS4397_Reset(ON);  
-    EZUSB_Delay(2);
+    CS4397_Reset(OFF);
+    CS4397_PMC(ON);  
+    // EZUSB_Delay(2);
 
-	// Reg.control1 = CS4397_ACKS | CS4397_DIF2 | CS4397_DIF1 | CS4397_DIF0 | CS4397_RSTN;
-	// Reg.control2 = CS4397_SD | CS4397_DEM0;
-	// Reg.control3 = 0x00;
-	// Reg.lch_att = 0xFF;
-	// Reg.rch_att = 0xFF;
-	// Reg.control4 = CS4397_INVL;
-	// Reg.dsd1 = 0x00;
-	// Reg.control5 = CS4397_SYNCE;
-	// Reg.sound_control = 0x00;
-	// Reg.dsd2 = 0x00;
-	// Reg.control6 = CS4397_PW;
-	// Reg.control7 = 0x00;
-	// Reg.control8 = CS4397_ADPE;
-
-    // memcpy(&TxBuf[1], &Reg, sizeof(Reg));
-
-    // EZUSB_WriteI2C(CS4397_I2C_ADDR, sizeof(TxBuf), TxBuf);
-    // I2C_POLL_FOR_COMPLETE();
-
+    
 	return TRUE;
 }
 
@@ -60,31 +43,13 @@ uint8_t CS4397_DeInit()
     CS4397_Reset(ON);
 }
 
-static void CS4397_PMC(uinit8_t pmc)
+static void CS4397_PMC(uint8_t pmc)
 {
-    TxBuf[0] = CS4397_CONTROL1_ADDR;
-    switch(pmc){
-        case ON:
-            reg.control1 |= ~CS4397_PDN;
-            TxBuf[1] = reg.control1;
-            break;
-        case OFF:
-            reg.control1 |= CS4397_PDN;
-            TxBuf[1] = reg.control1;
-            break;
-        default:
-            return FALSE;     
-    }
-
-    EZUSB_WriteI2C(CS4397A_I2C_ADDR, 2, TxBuf);
-    I2C_POLL_FOR_COMPLETE();
-
-    EZUSB_WriteI2C(CS4397B_I2C_ADDR, 2, TxBuf);
-    I2C_POLL_FOR_COMPLETE();
-
-    EZUSB_WriteI2C(CS4397C_I2C_ADDR, 2, TxBuf);
-    I2C_POLL_FOR_COMPLETE();
-
+    if (ON) //default: 1 - Power Down
+        reg.dac |= ~CS4397_PDN;
+    else
+        reg.dac |= CS4397_PDN;
+    UpdateReg(DAC);
     return TRUE;   
 }
 
@@ -94,156 +59,155 @@ static void CS4397_Reset(uint8_t reset)
     switch (reset)
     {
     case ON:
-        reg.control_board |= ~PCF8574_RESET;
-        TxBuf[0] =  reg.control_board;
-        EZUSB_WriteI2C(PCF8574_I2C_ADDR, 1, TxBuf);
-        I2C_POLL_FOR_COMPLETE();
+        reg.board |= ~PCF8574_RESET;
+        UpdateReg(BOARD);
         break;
     case OFF:
-        reg.control_board |= PCF8574_RESET;
-        TxBuf[0] =  reg.control_board;
-        EZUSB_WriteI2C(PCF8574_I2C_ADDR, 1, TxBuf);
-        I2C_POLL_FOR_COMPLETE();
+        reg.board |= PCF8574_RESET;
+        UpdateReg(BOARD);
         break;
     default:
-        reg.control_board |= ~PCF8574_RESET;
-        TxBuf[0] =  reg.control_board;
-        EZUSB_WriteI2C(PCF8574_I2C_ADDR, 1, TxBuf);
-        I2C_POLL_FOR_COMPLETE();
-
-        EZUSB_Delay1ms;
-        //Normal Operation
-        reg.control_board |= PCF8574_RESET;
-        TxBuf[0] =  reg.control_board;
-        EZUSB_WriteI2C(PCF8574_I2C_ADDR, 1, TxBuf);
-        I2C_POLL_FOR_COMPLETE();
-        break;
+        reg.dac |= CS4397_CAL;
+        UpdateReg(DAC);
     }
     return TRUE;
 }
 
 uint8_t CS4397_SetMute(uint8_t mute)
 {
-    switch(mute){
-        case ON:
-            CS4397_AMute(ON);
-            CS4397_SoftMute(ON);
-            break;
-        case OFF:
-            CS4397_AMute(OFF);
-            CS4397_SoftMute(OFF);
-            break;
-        default:
-            return FALSE;
-    }
-	return TRUE;
-}
-
-static void CS4397_AMute(uint8_t amute) //Amute will power off the LFP and HardMute the DAC
-{
-    switch (amute)
+    if (mute)
     {
-    case OFF:
-        reg.control_board |= ~PCF8574_AMUTE;
-        TxBuf[0] = reg.control_board;
-        break;
-    
-    default:
-        reg.control_board |= PCF8574_AMUTE;
-        TxBuf[0] = reg.control_board;
-        break;
-    }  
-
-    EZUSB_WriteI2C(PCF8574_I2C_ADDR, 1, TxBuf);
-    I2C_POLL_FOR_COMPLETE();
-
+        CS4397_AMute(mute);
+        CS4397_SoftMute(mute);
+    }
+    else{
+        CS4397_AMute(mute);
+        CS4397_SoftMute(mute);
+    }
 	return TRUE;
 }
 
-static void CS4397_SoftMute(uint8_t softmute)
+static void CS4397_AMute(uint8_t mute) //Amute will power off the LFP and HardMute the DAC
 {
-    TxBuf[0] = CS4397_CONTROL1_ADDR;
+    if (mute)
+        reg.board |= ~PCF8574_AMUTE;
+    else
+        reg.board |= PCF8574_AMUTE;
+    UpdateReg(BOARD);
+	return TRUE;
+}
 
-    switch (softmute)
+static void CS4397_SoftMute(uint8_t mute)
+{
+    if (mute)
+        reg.dac |= CS4397_SMUTE;
+    else
+        reg.dac |= ~CS4397_SMUTE;
+    UpdateReg(DAC);
+	return TRUE;
+}
+
+uint8_t CS4397_SetFormat(uint8_t freq, uint8_t interface)
+{
+    switch (freq)
     {
-    case OFF:
-        reg.control1 |= CS4397_SMUTE;
-        TxBuf[1] = reg.control1;
+    case 32000: //32K
+        reg.dac = (interface == 2) ? CS4397_SS_DEM_32K | CS4397_SS_FMT_R24 : CS4397_SS_DEM_32K | CS4397_SS_FMT_R16;
         break;
-    
+    case 64000: //64K
+        reg.dac = (interface == 2) ? CS4397_DUL_FMT_R24 : CS4397_DUL_FMT_R16;
+        break;
+    case 44100: //44K1
+        reg.dac = (interface == 2) ? CS4397_SS_DEM_44K1 | CS4397_SS_FMT_R24 : CS4397_SS_DEM_44K1 | CS4397_SS_FMT_R16;
+        break;
+    case 88200: //88K2
+        reg.dac = (interface == 2) ? CS4397_DUL_FMT_R24 : CS4397_DUL_FMT_R16;
+        break;
+    case 176400: //176K4
+        reg.dac = (interface == 2) ? CS4397_QUD_FMT_R24 : CS4397_QUD_FMT_R16;
+        break;
+    case 48000: //48K
+        reg.dac = (interface == 2) ? CS4397_SS_DEM_48K | CS4397_SS_FMT_R24 : CS4397_SS_DEM_48K | CS4397_SS_FMT_R16;
+        break;
+    case 96000: //96K
+        reg.dac = (interface == 2) ? CS4397_DUL_FMT_R24 : CS4397_DUL_FMT_R16;
+        break;
+    case 192000: //192K
+        reg.dac = (interface == 2) ? CS4397_QUD_FMT_R24 : CS4397_QUD_FMT_R16;
+        break;
+    case 2822400: //DSD64
+        reg.dac = (interface == 4) ? CS4397_DSD_64 : NULL;
+        break;
+    case 5644800: //DSD128
+        reg.dac = (interface == 4) ? CS4397_DSD_128 : NULL;
+        break;    
     default:
-        reg.control1 |= ~CS4397_SMUTE;
-        TxBuf[1] = reg.control1;
+        reg.dac |= CS4397_PDN;
         break;
     }
-
-    EZUSB_WriteI2C(CS4397A_I2C_ADDR, 2, TxBuf);
-    I2C_POLL_FOR_COMPLETE();
-
-    EZUSB_WriteI2C(CS4397B_I2C_ADDR, 2, TxBuf);
-    I2C_POLL_FOR_COMPLETE();
-
-    EZUSB_WriteI2C(CS4397C_I2C_ADDR, 2, TxBuf);
-    I2C_POLL_FOR_COMPLETE();
-
-	return TRUE;
-}
-
-uint8_t CS4397_SetFormat(uint8_t format)
-{
-    // TxBuf[0] = CS4397_CONTROL3_ADDR;
-    TxBuf[0] = CS4397_CONTROL1_ADDR;
-
-    switch (format) {
-    case CODEC_FORMAT_PCM:
-        Reg.control3 &= ~CS4397_DP;
-        break;
-    case CODEC_FORMAT_DSD:
-        Reg.control3 |= CS4397_DP;
-        break;
-    default:
-        return FALSE;
-    }
-
-    TxBuf[1] = Reg.control3;
-
-    EZUSB_WriteI2C(CS4397_I2C_ADDR, 2, TxBuf);
-    I2C_POLL_FOR_COMPLETE();
-
+    reg.dac |= CS4397_SMUTE;
+    UpdateReg(DAC);
+    CS4397_AMute();
 	return TRUE;
 }
 
 uint8_t CS4397_SetFreq(uint8_t freq)
 {
-    // TxBuf[0] = CS4397_CONTROL3_ADDR;
-    TxBuf[0] = EXT_MCLK_EN_SCKO2 | ;
-
     switch (freq) {
-    case MultipleOf32K:
-        Reg.control3 &= ~CS4397_DP;
+    case FS_32K_XN:
+        reg.board != ~PCF8574_MCK_INT;
+        reg.mclk = EXT_MCLK_32K;
         break;
-    case MultipleOf44K1:
-        Reg.control3 |= CS4397_DP;
+    case FS_44K1_XN:
+        reg.board != ~PCF8574_MCK_INT;
+        reg.mclk = EXT_MCLK_44K1;
         break;
-    case MultipleOf48K:
-        Reg.control3 |= CS4397_DP;
+    case FS_48K_XN:
+        reg.board != ~PCF8574_MCK_INT;
+        reg.mclk = EXT_MCLK_48K;
+        break;
+    case FS_DSD:
+        reg.board != ~PCF8574_MCK_INT;
+        reg.mclk = EXT_MCLK_DSD;
         break;
     default:
-        return FALSE;
+        reg.board != PCF8574_MCK_INT;
+        break;
     }
-
-    TxBuf[1] = Reg.control3;
-
-    EZUSB_WriteI2C(PLL1708_I2C_ADDR_MOD, 1, TxBuf);
-    I2C_POLL_FOR_COMPLETE();
-
+    CS4397_SoftMute(mute);
+    UpdateReg(MCLK); //config mclk
+    UpdateReg(BOARD);
 	return TRUE;
 }
 
-uint8_t CS4397_SetMCLK(uint8_t mclk)
+static void UpdateReg(uint8_t regx)
 {
+    switch (regx)
+    {
+    case DAC:
+        TxBuf[0] = CS4397_CONTROL_ADDR;
+        TxBuf[1] = reg.dac;
+        EZUSB_WriteI2C(CS4397A_I2C_ADDR, 2, TxBuf);
+        I2C_POLL_FOR_COMPLETE();
 
+        EZUSB_WriteI2C(CS4397B_I2C_ADDR, 2, TxBuf);
+        I2C_POLL_FOR_COMPLETE();
 
+        EZUSB_WriteI2C(CS4397C_I2C_ADDR, 2, TxBuf);
+        I2C_POLL_FOR_COMPLETE();
+        break;
+    case BOARD:
+        TxBuf[0] = reg.board;
+        EZUSB_WriteI2C(PCF8574_I2C_ADDR, 1, TxBuf);
+        I2C_POLL_FOR_COMPLETE();
+        break;
+    case MCLK:
+        TxBuf[0] = reg.mclk;
+        EZUSB_WriteI2C(PLL1708_I2C_ADDR_MOD, 1, TxBuf);
+        I2C_POLL_FOR_COMPLETE();
+    default: //mclk config
+        return FALSE;
+    }
     return TRUE;
 }
 

@@ -376,32 +376,32 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\codec_AK4490R.c</PathWithFileName>
-      <FilenameWithoutPath>codec_AK4490R.c</FilenameWithoutPath>
+      <PathWithFileName>.\codec.c</PathWithFileName>
+      <FilenameWithoutPath>codec.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
     <File>
       <GroupNumber>1</GroupNumber>
       <FileNumber>13</FileNumber>
-      <FileType>5</FileType>
+      <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\codec_AK4490R.h</PathWithFileName>
-      <FilenameWithoutPath>codec_AK4490R.h</FilenameWithoutPath>
+      <PathWithFileName>.\codec_CS4397.c</PathWithFileName>
+      <FilenameWithoutPath>codec_CS4397.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
     <File>
       <GroupNumber>1</GroupNumber>
       <FileNumber>14</FileNumber>
-      <FileType>1</FileType>
+      <FileType>5</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\codec.c</PathWithFileName>
-      <FilenameWithoutPath>codec.c</FilenameWithoutPath>
+      <PathWithFileName>.\codec_CS4397.h</PathWithFileName>
+      <FilenameWithoutPath>codec_CS4397.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

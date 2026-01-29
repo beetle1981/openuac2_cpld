@@ -432,19 +432,19 @@
               <FilePath>.\codec.h</FilePath>
             </File>
             <File>
-              <FileName>codec_AK4490R.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\codec_AK4490R.c</FilePath>
-            </File>
-            <File>
-              <FileName>codec_AK4490R.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\codec_AK4490R.h</FilePath>
-            </File>
-            <File>
               <FileName>codec.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\codec.c</FilePath>
+            </File>
+            <File>
+              <FileName>codec_CS4397.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\codec_CS4397.c</FilePath>
+            </File>
+            <File>
+              <FileName>codec_CS4397.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\codec_CS4397.h</FilePath>
             </File>
           </Files>
         </Group>

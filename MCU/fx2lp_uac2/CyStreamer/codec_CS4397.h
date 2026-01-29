@@ -11,7 +11,7 @@
 #define PLL1708_I2C_ADDR_MOD	0x38	//Mode Address
 #define PLL1708_I2C_ADDR_SCKO1	0x36	//SCKO1 Address
 
-#define CS4397_CONTROL1_ADDR       0X01	//01H
+#define CS4397_CONTROL_ADDR       0X01	//01H
 
 
 // Control 1
@@ -25,7 +25,7 @@
 #define CS4397_SS_FMT_R24	(3U << 1) //Right Justified, 24 bit data
 //De-Emphasis single speed
 #define CS4397_SS_DEM_32K	(0U << 3) //32kHz De-Emphasis
-#define CS4397_SS_DEM_44K	(1U << 3) //44.1kHz De-Emphasis
+#define CS4397_SS_DEM_44K1	(1U << 3) //44.1kHz De-Emphasis
 #define CS4397_SS_DEM_48K	(2U << 3) //48kHz De-Emphasis
 #define CS4397_SS_DEM_OFF	(3U << 3) //De-Emphasis Disabled
 //Double Speed Sample Rate control
@@ -37,7 +37,7 @@
 #define CS4397_QUD_FMT_LFT	(24U << 1) //Left Justified up to 24-bit data, format 0
 #define CS4397_QUD_FMT_I2S	(25U << 1) //I2S up to 24-bit data, format 1
 #define CS4397_QUD_FMT_R16	(26U << 1) //Right Justified 16-bit data, format 2
-#define CS4397_QUD_FMT_R14	(27U << 1) //Right Justified 24-bit data, format 3
+#define CS4397_QUD_FMT_R24	(27U << 1) //Right Justified 24-bit data, format 3
 //8x Interpolated Input Mode Options
 #define CS4397_8X_FMT_R20	(16U << 1) //Right Justified 20-bit data
 #define CS4397_8X_FMT_R24	(17U << 1) //Right Justified 24-bit data
@@ -46,9 +46,9 @@
 #define CS4397_DSD_128		(21U << 1) //DSD128
 
 // ------------------Control Board
-#define PCF8574_MCK_SEL		(1U << 7)	//H: internal; L: external
-#define PCF8574_MCK_Freq	(1U << 6)   //H: 384Fs; L: 192Fs
-#define PCF8574_RESET 		(1U << 5)	//H: normal; L: reset
+#define PCF8574_MCK_INT		(1U << 7)	//H: internal; L: external
+#define PCF8574_MCK_384FS	(1U << 6)   //H: 384Fs; L: 192Fs
+#define PCF8574_RESET 		(1U << 5)	//H: normal; L: reset ON
 // #define PCF8574_DFS1		(1U << 4)
 // #define PCF8574_DFS0		(1U << 3)
 #define PCF8574_DSD_GAIN	(1U << 2)	//H: DSD; L: PCM
@@ -76,9 +76,9 @@
 
 typedef struct 
 {
-	uint8_t control1;		//DAC Chip control
-	uint8_t control_board;	//Board control
-	uint8_t control_mclk;	//external MCLK control
+	uint8_t dac;		//DAC Chip control
+	uint8_t board;	//Board control
+	uint8_t mclk;	//external MCLK control
 } CS4397_RegisterTypeDef;
 
 
@@ -87,7 +87,7 @@ uint8_t CS4397_Init();
 // uint8_t CS4397_SetVolume(uint8_t vol);
 uint8_t CS4397_SetMute(uint8_t mute);
 uint8_t CS4397_SetFormat(uint8_t format);
-uint8_t CS4397_SetFreq(uint8_t format);
+uint8_t CS4397_SetFreq(uint8_t frequency);
 // uint8_t CS4397_Play();
 // uint8_t CS4397_Stop();
 
