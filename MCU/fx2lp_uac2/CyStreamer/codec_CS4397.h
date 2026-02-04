@@ -84,6 +84,7 @@ typedef struct
 
 
 uint8_t CS4397_Init();
+uint8_t CS4397_DeInit();
 // uint8_t CS4397_SetVolume(uint8_t vol);
 uint8_t CS4397_SetMute(uint8_t mute);
 uint8_t CS4397_SetFormat(uint8_t format);
